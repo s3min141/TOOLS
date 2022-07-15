@@ -1,0 +1,175 @@
+/* Font */
+@import url(//fonts.googleapis.com/css?family=Inconsolata);
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family: "Inconsolata";
+    background-color: #E8EFEF;
+}
+
+blockquote {
+    padding: 0 1em;
+    border-left: 0.25em solid #d0d7de;
+}
+
+.row {
+    background-color: white;
+}
+
+#alert-box {
+    margin-top: 10px;
+}
+
+#outter-wrapper {
+    background-color: #F6F7F7;
+    box-sizing: border-box;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+#content-wrapper {
+    margin: 20px 0;
+}
+
+#sidebar>ul>li:first-child {
+    margin-top: 16px;
+}
+
+#sidebar>ul>li:last-child {
+    margin-bottom: 16px;
+}
+
+hr {
+    margin: 5px auto;
+}
+
+.icon-right {
+    float: right;
+    padding-top: 3px;
+}
+
+.right {
+    float: right;
+}
+
+.filter-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.filter-item {
+    position: relative;
+    display: block;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    font-size: 14px;
+    color: black;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.filter-item.selected {
+    background-color: #0366d6;
+    color: white;
+}
+
+li>a:hover {
+    color: black;
+    background-color: whitesmoke;
+}
+
+p,
+li,
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+#aboutme-inner-wrapper>hr {
+    width: 99%;
+    margin: 20px auto;
+}
+
+@media (max-width: 1024px) {
+    .icon-right {
+        float: none;
+        padding-left: 10px;
+    }
+
+    .filter-item {
+        margin-top: 10px;
+    }
+
+    #outter-wrapper {
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        margin: 0;
+        padding: 0;
+    }
+
+    #sidebar {
+        position: absolute;
+        top: 0;
+        height: 62px;
+        background-color: #F6F7F7;
+        width: 100%;
+        left: 0;
+    }
+
+    #sidebar>ul {
+        display: inline;
+    }
+
+    #sidebar>ul>li {
+        display: inline-block;
+        float: right;
+    }
+
+    #sidebar>ul>li:first-child {
+        float: left;
+        padding: 0;
+        margin: 0;
+    }
+
+    #contents {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        margin-top: 25px;
+    }
+
+    #sidebar hr {
+        display: none;
+    }
+
+    #aboutme-inner-wrapper>p>img:nth-child(1n) {
+        width: 100%;
+    }
+}
+
+@media (max-width: 800px) {
+    .icon-right {
+        float: none;
+        padding-left: 0;
+    }
+
+    #sidebar-menu>li>a {
+        font-size: 0px;
+    }
+
+    #sidebar-menu>li[page-id="alert"]>a {
+        font-size: 14px;
+    }
+}
