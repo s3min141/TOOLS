@@ -20,6 +20,11 @@ blockquote {
     background-color: white;
 }
 
+.card-text {
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
 #alert-box {
     margin-top: 10px;
 }

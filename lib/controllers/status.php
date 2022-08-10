@@ -3,10 +3,11 @@
     {
         public function ProfileAction()
         {
-            if ($this->IsSigned()) {
-                $this->Output(Array("username" => $_SESSION["username"]));
+            if (!$this->IsSigned()) {
+                $this->Output(false);
             }
-            $this->Output(false);
+            
+            $this->Output(Array("username" => $_SESSION["username"]));
         }
     }
 ?>

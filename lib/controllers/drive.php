@@ -17,6 +17,7 @@
                 if (!file_exists(__DRIVE__ . $hashedUsername)) {
                     mkdir(__DRIVE__ . $hashedUsername, 0777);
                 }
+                chmod(__DRIVE__ . $hashedUsername, 0777);
             }
         }
 
@@ -34,10 +35,8 @@
 
             if ($driveModel != false) {
                 for ($i = 0; $i < count($driveModel); $i++) {
-                    $driveModel[$i]->filename = AESDecrypt($driveModel[$i]->filename, $_SESSION["privatekey"]);
                     $driveModel[$i]->realpath = AESDecrypt($driveModel[$i]->realpath, $_SESSION["privatekey"]);
                     $realPath = $driveModel[$i]->realpath;
-                    $fileContent = "data:" . mime_content_type($realPath) . ";base64," . base64_encode(file_get_contents($realPath));
                     $fileMimeType = explode("/", mime_content_type($realPath));
                     if ($fileMimeType[0] != "application") {
                         $fileMimeType = $fileMimeType[0];
@@ -46,7 +45,7 @@
                         $fileMimeType = $fileMimeType[1];
                     }
 
-                    $resultArr[] = Array("filename"=>$driveModel[$i]->filename, "filesize"=>filesize($realPath), "filecontent"=>$fileContent, "filetype"=>$fileMimeType);
+                    $resultArr[] = Array("filename"=>$driveModel[$i]->filename, "filesize"=>filesize($realPath), "filetype"=>$fileMimeType);
                 }
             }
 
@@ -68,7 +67,7 @@
                 $fileExt = pathinfo($file["name"], PATHINFO_EXTENSION);
                 $fileSavePath = __DRIVE__ . SecureHash($username) . "/" . $tmpName . "." . $fileExt;
                 $driveModel->fileauthor = $username;
-                $driveModel->filename = AESEncrypt($file["name"], $_SESSION["privatekey"]);
+                $driveModel->filename = $file["name"];
                 $driveModel->realpath = AESEncrypt($fileSavePath, $_SESSION["privatekey"]);
 
                 if ($file["error"] != UPLOAD_ERR_OK) {
@@ -91,9 +90,67 @@
             }
         }
 
+        function DownloadAction()
+        {
+            if (!$this->IsSigned()) {
+                $this->Output(false);
+            }
+
+            $username = $this->AuthFilter($_SESSION["username"]);
+            $filename = $this->sql->StringFilter($_GET["filename"], "sql");
+
+            $driveInfo = new DriveInfo;
+            $downloadResult = $driveInfo->Get(
+                ["realpath"], 
+                ["fileauthor"=>$username, "filename"=>$filename],
+                1
+            );
+
+            if ($downloadResult != false) {
+                $fileName = $downloadResult->filename;
+                $realPath = AESDecrypt($downloadResult->realpath, $_SESSION["privatekey"]);
+                header("Content-type: application/octet-stream");
+                header("Content-Length: ".filesize($realPath));
+                header("Content-Disposition: attachment; filename=$filename");
+                header("Content-Transfer-Encoding: binary");
+                header("Cache-Control: must-revalidate,post-check=0,pre-check=0");
+                header("Pragma: public");
+                header("Expires: 0");
+                header("Content-type: " . mime_content_type($realPath));
+                $fileOpen = fopen($realPath, "rb");
+                fpassthru($fileOpen);
+                fclose($fileOpen);
+                $this->Output(true);
+            }
+            else {
+                $this->Output(false);
+            }
+        }
+
         function RemoveAction()
         {
-            echo "TBD";
+            if (!$this->IsSigned()) {
+                $this->Output(false);
+            }
+
+            $username = $this->AuthFilter($_SESSION["username"]);
+            $filename = $this->sql->StringFilter($_GET["filename"], "sql");
+
+            $driveInfo = new DriveInfo;
+            $getResult = $driveInfo->Get(
+                ["realpath"], 
+                ["fileauthor"=>$username, "filename"=>$filename],
+                1
+            );
+            $realPath = AESDecrypt($getResult->realpath, $_SESSION["privatekey"]);
+
+            $removeResult = $driveInfo->Del(["fileauthor"=>$username, "filename"=>$filename]);
+
+            if (!unlink($realPath)) {
+                $this->Output(false);
+            }
+
+            $this->Output(true);
         }
     }
 ?>

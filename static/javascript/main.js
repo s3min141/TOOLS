@@ -72,7 +72,7 @@ function redirect(url) {
     check_is_signed();
 }
 
-function generate_sidebar(pageId = "", pageTxt = "", pageIcon = "", isFirst = false) {
+var generate_sidebar = function(pageId = "", pageTxt = "", pageIcon = "", isFirst = false) {
     var sideBarHtml = `<li page-id="${pageId}"><a href="#/${pageId}" class="filter-item">${pageTxt}<span class="octicon octicon-${pageIcon} icon-right"></span></a></li>`;;
     if (pageId == "alert") {
         sideBarHtml = `<li page-id="${pageId}"><a class="filter-item">${pageTxt}<span class="octicon octicon-${pageIcon} icon-right"></span></a></li>`;
@@ -223,15 +223,13 @@ function render_drive()
     $.post("/drive/list", function (data) {
         data.forEach(element => {
             var file = {};
-            var blobUrl = URL.createObjectURL(data_to_blob(element.filecontent)).toString();
-            
             file.type = element.filetype.split('/')[0];
             file.caption = element.filename;
             file.size = element.filesize;
-            file.url = "delete TBD";
-            file.downloadUrl = blobUrl;
+            file.url = "/drive/remove?filename=" + element.filename;
+            file.downloadUrl = "/drive/download?filename=" + element.filename;
             configList.push(file);
-            previewList.push(blobUrl);
+            previewList.push("data:;base64,");
         });
 
         $.fn.fileinputBsVersion = '5.0.0';
@@ -243,7 +241,8 @@ function render_drive()
             overwriteInitial: false,
             initialPreviewAsData: true,
             initialPreviewConfig: configList,
-            initialPreview: previewList
+            initialPreview: previewList,
+            fileActionSettings: {showZoom: false}
         });
 
         $("#inner-wrapper").attr("hidden", false);

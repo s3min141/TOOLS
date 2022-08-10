@@ -91,7 +91,7 @@
             $conditions = ($conditions == "") ? "TRUE" : $conditions;
             $finalQuery = "SELECT $columns FROM $this->modelTable WHERE $conditions $limit";
             $queryResult = $this->sql->SendQuery($finalQuery, $type);
-
+            
             return ($queryResult) ? $this->DataToModel($queryResult, $type) : false;
         }
 

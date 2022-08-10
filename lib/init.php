@@ -9,15 +9,15 @@
     
     // DB Credentials (MySQL)
     define("__DB_HOST__", "localhost");
-    define("__DB_USER__", "id");
-    define("__DB_PASS__", "pw");
-    define("__DB_BASE__", "db_name");
+    define("__DB_USER__", "s3min");
+    define("__DB_PASS__", "semin31242");
+    define("__DB_BASE__", "tools_database");
 
     // Base URL //
     define("__HOST__", "https://" . $_SERVER['SERVER_NAME']);
 
     // Hash Salt //
-    define("__HASH_SALT__", "");
+    define("__HASH_SALT__", "RFaJoxUvSmUvVS2f29o89tmQrv7p1hauvvw4A6nMfW2PdF6O2gm6ND0XAxmLG33rpdbsCX1QArXJRcgB");
 
     // Template Dir //
     define("__TEMPLATE__", $_SERVER['DOCUMENT_ROOT'] . "/template/");
