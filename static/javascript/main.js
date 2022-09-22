@@ -95,6 +95,7 @@ function render_sidebar() {
         sideBarHtml += generate_sidebar("todo", "To do list", "tasklist");
         sideBarHtml += generate_sidebar("memo", "Memo", "pencil");
         sideBarHtml += generate_sidebar("drive", "Drive", "file-directory");
+        sideBarHtml += generate_sidebar("books", "Books", "book");
     }
 
     if (CURRENT_TAB == "aboutme") {
@@ -153,8 +154,23 @@ function render_contents() {
             render_task();
             break;
         case "drive":
+            if (!IS_SIGNED) {
+                show_error("unauthorized");
+                return;
+            }
+
             set_html("#content-wrapper", '<div id="inner-wrapper" style="margin-bottom: 10px;"> <input id="input-id" name="file-data" type="file" multiple> </div>');
             render_drive();
+            break;
+        case "books":
+            if (!IS_SIGNED) {
+                show_error("unauthorized");
+                return;
+            }
+
+            render_modal();
+            set_html("#content-wrapper", '<div class="card"> <div class="card-body" style="position: relative;min-height: 150px;max-height: 600px;overflow: auto;"> <table class="table mb-0"> <thead> <tr> <th scope="col">Book name</th> <th scope="col">Category</th> <th scope="col">Upload date</th> <th scope="col">Actions</th> </tr></thead> <tbody id="book-list"></tbody> </table> </div><div class="card-footer text-end"> <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addBookModal">Add book</button> </div></div>');
+            render_books();
             break;
         case "logined":
             if (!IS_SIGNED) {
@@ -191,7 +207,7 @@ function render_contents() {
 function render_modal() {
     switch (CURRENT_TAB) {
         case "memo":
-            set_html("#modal-list", `<div class="modal fade" id="createMemoModal" data-bs-backdrop="static" tabindex="-1"> <div class="modal-dialog modal-lg"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="exampleModalLabel">New memo</h5> <button type="button" class="btn-close" data-bs-dismiss="modal"></button> </div><div class="modal-body"> <form> <div class="mb-3"> <label for="recipient-name" class="col-form-label">Title:</label> <input type="text" class="form-control" id="memo-title-input" required> </div><div class="mb-3"> <label for="message-text" class="col-form-label">Content:</label> <textarea class="form-control" id="memo-content-input" rows="10" required></textarea> </div><div id="pincode-input-wrapper"> <label for="pincode-input-field" class="col-form-label">Pincode (5 digit):</label> <div class="input-group mb-3" id="pincode-input-field"> <div class="input-group-text"> <input class="form-check-input mt-0" id="memo-pincode-check" type="checkbox" onchange="$('#memo-pincode-input').attr('disabled', !this.checked)"> </div><input type="text" minlength="5" maxlength="5" onkeypress="if((event.keyCode<48)||(event.keyCode>57)){event.preventDefault();}" class="form-control" id="memo-pincode-input" disabled="true" required> </div></div></form> </div><div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button id="memo-submit-button" type="button" class="btn btn-primary" onclick="add_memo();">Create Memo</button> </div></div></div></div>`, true);
+            set_html("#modal-list", `<div class="modal fade" id="createMemoModal" data-bs-backdrop="static" tabindex="-1"> <div class="modal-dialog modal-lg"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title">New memo</h5> <button type="button" class="btn-close" data-bs-dismiss="modal"></button> </div><div class="modal-body"> <form> <div class="mb-3"> <label for="recipient-name" class="col-form-label">Title:</label> <input type="text" class="form-control" id="memo-title-input" required> </div><div class="mb-3"> <label for="message-text" class="col-form-label">Content:</label> <textarea class="form-control" id="memo-content-input" rows="10" required></textarea> </div><div id="pincode-input-wrapper"> <label for="pincode-input-field" class="col-form-label">Pincode (5 digit):</label> <div class="input-group mb-3" id="pincode-input-field"> <div class="input-group-text"> <input class="form-check-input mt-0" id="memo-pincode-check" type="checkbox" onchange="$('#memo-pincode-input').attr('disabled', !this.checked)"> </div><input type="text" minlength="5" maxlength="5" onkeypress="if((event.keyCode<48)||(event.keyCode>57)){event.preventDefault();}" class="form-control" id="memo-pincode-input" disabled="true" required> </div></div></form> </div><div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button id="memo-submit-button" type="button" class="btn btn-primary" onclick="add_memo();">Create Memo</button> </div></div></div></div>`, true);
             $('#createMemoModal').on('hidden.bs.modal', function () {
                 $("#memo-title-input").val("");
                 $("#memo-content-input").val("");
@@ -204,8 +220,16 @@ function render_modal() {
             });
             break;
         case "todo":
-            set_html("#modal-list", `<div class="modal fade" id="createTaskModal" data-bs-backdrop="static" tabindex="-1"> <div class="modal-dialog modal-lg"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="exampleModalLabel">New task</h5> <button type="button" class="btn-close" data-bs-dismiss="modal"></button> </div><div class="modal-body"> <form> <div class="mb-3"> <label class="col-form-label">To do:</label> <input type="text" class="form-control" id="task-content-input" required> </div><div class="mb-3"> <label f class="col-form-label">Task priority: </label> <div class="btn-group dropend"> <button task-priority="0" id="priority-dropdown-btn" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> Low </button> <ul class="dropdown-menu"> <li onclick="$('#priority-dropdown-btn').attr('task-priority', '0');$('#priority-dropdown-btn').text('Low ');"><a class="dropdown-item">Low</a></li><li onclick="$('#priority-dropdown-btn').attr('task-priority', '1');$('#priority-dropdown-btn').text('Medium ');"><a class="dropdown-item">Medium</a></li><li onclick="$('#priority-dropdown-btn').attr('task-priority', '2');$('#priority-dropdown-btn').text('High ');"><a class="dropdown-item">High</a></li></ul> </div></div></form> </div><div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button id="memo-submit-button" type="button" class="btn btn-primary" onclick="add_task();">Create Task</button> </div></div></div></div>`, true);
+            set_html("#modal-list", `<div class="modal fade" id="createTaskModal" data-bs-backdrop="static" tabindex="-1"> <div class="modal-dialog modal-lg"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title">New task</h5> <button type="button" class="btn-close" data-bs-dismiss="modal"></button> </div><div class="modal-body"> <form> <div class="mb-3"> <label class="col-form-label">To do:</label> <input type="text" class="form-control" id="task-content-input" required> </div><div class="mb-3"> <label f class="col-form-label">Task priority: </label> <div class="btn-group dropend"> <button task-priority="0" id="priority-dropdown-btn" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> Low </button> <ul class="dropdown-menu"> <li onclick="$('#priority-dropdown-btn').attr('task-priority', '0');$('#priority-dropdown-btn').text('Low ');"><a class="dropdown-item">Low</a></li><li onclick="$('#priority-dropdown-btn').attr('task-priority', '1');$('#priority-dropdown-btn').text('Medium ');"><a class="dropdown-item">Medium</a></li><li onclick="$('#priority-dropdown-btn').attr('task-priority', '2');$('#priority-dropdown-btn').text('High ');"><a class="dropdown-item">High</a></li></ul> </div></div></form> </div><div class="modal-footer"> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <button type="button" class="btn btn-primary" onclick="add_task();">Create Task</button> </div></div></div></div>`, true);
             $('#createTaskModal').on('hidden.bs.modal', function () {
+                $("#task-content-input").val("");
+                $("#priority-dropdown-btn").text("Low ");
+                $("priority-dropdown-btn").attr("task-priority", "0");
+            });
+            break;
+        case "books":
+            set_html("#modal-list", `<div class="modal fade" id="addBookModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">New book</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form><div class="input-group mb-3"><input type="file" class="form-control" id="bookfile-input"></div><div class="input-group"><span class="input-group-text" id="basic-addon1">Category</span><input id="category-input" type="text" class="form-control"></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-primary" onclick="add_book()">Add book</button></div></div></div></div>`, true);
+            $('#addBookModal').on('hidden.bs.modal', function () {
                 $("#task-content-input").val("");
                 $("#priority-dropdown-btn").text("Low ");
                 $("priority-dropdown-btn").attr("task-priority", "0");
@@ -249,8 +273,21 @@ function render_drive()
     });
 }
 
+function render_books() {
+    $.post("/books/list", function(data) {
+        if (data == false) {
+            content_alert("warning", "Alert", "Book list is empty");
+            return;
+        }
+
+        data.forEach(element => {
+            set_html("#book-list", `<tr book-id="${element.bookid}" id="${element.bookid}-book"> <td> <span>${element.bookname}</span> </td><td class="align-middle"> <h6 class="mb-0"> <span>${element.category}</span> </h6> </td><td class="align-middle"> <h6 class="mb-0"> <span>${element.uploaddate}</span> </h6> </td><td class="align-middle"> <a book-id="${element.bookid}" style="cursor: pointer;" onclick="show_book('${element.bookid}')"> <i class="fas fa-solid fa-eye me-3"></i> </a> <a book-id="${element.bookid}" style="cursor: pointer;" onclick="delete_book('${element.bookid}');"> <i class="fas fa-trash-alt text-danger"></i> </a> </td></tr>`, true);
+        });
+    });
+}
+
 function render_memos() {
-    $.post("/memo/list", function (data) {
+    $.post("/memo/list", function(data) {
         if (data == false) {
             content_alert("warning", "Alert", "Memo list is empty");
             return;
@@ -476,6 +513,61 @@ function add_task() {
         } else {
             content_alert("danger", "Alert", "Failed to add task");
         }
+    });
+}
+
+function add_book() {
+    var formData = new FormData();
+    formData.append("bookfile", $("#bookfile-input")[0].files[0]);
+    formData.append("category", $("#category-input").val());
+
+    $.ajax({
+        type:"POST",
+        url: "/books/upload",
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: function(data){
+            if (data != false) {
+                redirect("/books");
+            } else {
+                $("#addBookModal").modal("hide");
+                content_alert("danger", "Alert", "Failed to add book");
+            }
+        },
+        error: function(data) {
+            $("#addBookModal").modal("hide");
+            content_alert("danger", "Alert", "Failed to add book");
+        }
+    });
+}
+
+function show_book(bookid) {
+    var parameter = {
+        bookid: bookid
+    };
+
+    $.post("/books/show", parameter, function(data) {
+        if (data != false) {
+            const bookBlob = data_to_blob(data);
+            window.open(URL.createObjectURL(bookBlob));
+        }
+    });
+}
+
+function delete_book(bookid) {
+    show_confirm("Are you sure to delete this book?", function () {
+        var parameter = {
+            bookid: bookid
+        };
+
+        $.post("/books/delete", parameter, function(data) {
+            if (data != false) {
+                redirect("/books");
+            } else {
+                content_alert("danger", "Alert", "Failed to delete book");
+            }
+        });
     });
 }
 

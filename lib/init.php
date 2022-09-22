@@ -23,9 +23,9 @@
     define("__TEMPLATE__", $_SERVER['DOCUMENT_ROOT'] . "/template/");
 
     // Drive Dir //
-    define("__DRIVE__", $_SERVER['DOCUMENT_ROOT'] . "/drive/");
+    define("__DRIVE__", $_SERVER['DOCUMENT_ROOT'] . "/userfile/");
 
-    require_once "sql.php";
+    require_once "sql.php"; 
     $sql = new SQL();
     $sql->ConnectDB(__DB_HOST__, __DB_USER__, __DB_PASS__, __DB_BASE__);
     if (!$sql->CheckConn()) {

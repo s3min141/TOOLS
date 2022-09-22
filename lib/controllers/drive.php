@@ -17,6 +17,11 @@
                 if (!file_exists(__DRIVE__ . $hashedUsername)) {
                     mkdir(__DRIVE__ . $hashedUsername, 0777);
                 }
+
+                if (!file_exists(__DRIVE__ . $hashedUsername . "/drive")) {
+                    mkdir(__DRIVE__ . $hashedUsername . "/drive", 0777);
+                }
+                
                 chmod(__DRIVE__ . $hashedUsername, 0777);
             }
         }
@@ -65,7 +70,7 @@
             foreach ($_FILES as $file) {
                 $tmpName = explode("/", $file["tmp_name"])[2];
                 $fileExt = pathinfo($file["name"], PATHINFO_EXTENSION);
-                $fileSavePath = __DRIVE__ . SecureHash($username) . "/" . $tmpName . "." . $fileExt;
+                $fileSavePath = __DRIVE__ . SecureHash($username) . "/drive/" . $tmpName . "." . $fileExt;
                 $driveModel->fileauthor = $username;
                 $driveModel->filename = $file["name"];
                 $driveModel->realpath = AESEncrypt($fileSavePath, $_SESSION["privatekey"]);

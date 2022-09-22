@@ -5,7 +5,7 @@
     require_once "lib/model.php";
     require_once "lib/controller.php";
 
-    $allowed_controller = ["default", "user", "status", "memo", "task", "drive"];
+    $allowed_controller = ["default", "user", "status", "memo", "task", "drive", "books"];
     try
     {
         $controller = isset($_GET["controller"]) ? $_GET["controller"] : "default";

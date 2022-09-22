@@ -33,6 +33,16 @@
         public $realpath;
     }
 
+    class Book
+    {
+        public $bookid;
+        public $bookauthor;
+        public $bookname;
+        public $category;
+        public $uploaddate;
+        public $uploaddir;
+    }
+
     class ModelHandler
     {
         protected $sql;
@@ -193,6 +203,16 @@
         {
             $this->modelName = "Drive";
             $this->modelTable = "drive_table";
+            ModelHandler::__construct();
+        }
+    }
+
+    class BookInfo extends ModelHandler
+    {
+        function __construct()
+        {
+            $this->modelName = "Book";
+            $this->modelTable = "books_table";
             ModelHandler::__construct();
         }
     }
